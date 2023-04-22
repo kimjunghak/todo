@@ -4,7 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-public class HigherxUserDto {
+public class HigherxUserFront {
 
     @Data
     public static class UserInfo {

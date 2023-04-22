@@ -3,5 +3,14 @@ spring:
     url: jdbc:h2:mem:higherx
     username: sa
     password:
+    driver-class-name: org.h2.Driver
   jpa:
     open-in-view: false
+    database: h2
+  h2:
+    console:
+      enabled: true
+
+jwt:
+  secret-key: 7TXK9yK8FDvY848kODEpHS61x5fhh18OtTiplZbhBlQ=
+  expired-time: 7200000 # 2시간

@@ -1,21 +1,22 @@
 package com.higherx.api.service.user;
 
-import com.higherx.api.model.dto.user.HigherxUserDto;
-import com.higherx.api.model.dto.veify.Verify;
-import org.springframework.stereotype.Service;
+import com.higherx.api.model.dto.user.HigherxUserFront;
+import com.higherx.api.model.dto.user.Verify;
+import com.higherx.api.model.entity.user.HigherxUser;
 
-@Service
 public interface HigherxUserService {
 
-    void signup(HigherxUserDto.Signup signup);
+    Long signup(HigherxUserFront.Signup signup);
 
-    HigherxUserDto.UserInfo getInfo(Long higherxUserId);
+    HigherxUserFront.UserInfo getInfo(Long higherxUserId);
 
     /**
      * 회원 탈퇴시 실제 Database에서 데이터를 삭제하는 것이 아닌
      * `phone`, `crn`, `password`를 마스킹하고 로그인 할 수 없도록 합니다.
      */
     void signout(Long higherxUserId);
+
+    HigherxUser getHigherxUser(Long higherxUserId);
 
     Verify verifyAccount(String account);
 

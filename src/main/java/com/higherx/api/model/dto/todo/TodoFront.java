@@ -4,10 +4,10 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-public class TodoDto {
+public class TodoFront {
 
     @Data
-    public static class TodoInfo {
+    public static class ListInfo {
         private Long id;
 
         private String name;
@@ -22,5 +22,16 @@ public class TodoDto {
         private String name;
 
         private String description;
+    }
+
+    @Data
+    public static class TodoInfo {
+        private Long id;
+
+        private String name;
+
+        private String description;
+
+        private TodoState state;
     }
 }
