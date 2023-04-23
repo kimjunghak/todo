@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -76,8 +77,8 @@ public class HigherxUserServiceImpl implements HigherxUserService{
     @Override
     public Verify verifyCrn(String crn) {
         String replaceCrn = crn.replaceAll("-", "");
-        char[] crnCharArray = replaceCrn.toCharArray();
-        if (!checkCrn(crnCharArray)) {
+        int[] crnArray = Arrays.stream(replaceCrn.split("")).mapToInt(Integer::parseInt).toArray();
+        if (!checkCrn(crnArray)) {
             return Verify.unavailable();
         }
         Optional<HigherxUser> higherxUser = higherxUserRepository.findByCrn(crn);
@@ -98,15 +99,15 @@ public class HigherxUserServiceImpl implements HigherxUserService{
 
     private static Verify getVerify(Optional<HigherxUser> higherxUser) {
         if (higherxUser.isEmpty()) {
-            return Verify.unavailable();
+            return Verify.available();
         }
-        return Verify.available();
+        return Verify.unavailable();
     }
 
-    private static boolean checkCrn(char[] crnCharArray) {
+    private static boolean checkCrn(int[] crnCharArray) {
         final String authKey = "137137135";
+        int[] authKeyArr = Arrays.stream(authKey.split("")).mapToInt(Integer::parseInt).toArray();
         // 1
-        char[] authKeyArr = authKey.toCharArray();
         if (crnCharArray.length != 10) {
             throw new RuntimeException("사업자 번호는 - 제외 10자리어야 합니다.");
         }
@@ -116,7 +117,7 @@ public class HigherxUserServiceImpl implements HigherxUserService{
             sum += crnCharArray[i] * authKeyArr[i];
         }
         // 3, 4
-        sum += (int) crnCharArray[crnCharArray.length - 2] * authKeyArr[authKeyArr.length - 1] / 10;
+        sum += crnCharArray[crnCharArray.length - 2] * authKeyArr[authKeyArr.length - 1] / 10;
         // 5, 6
         int last = 10 - sum % 10;
         // 7
