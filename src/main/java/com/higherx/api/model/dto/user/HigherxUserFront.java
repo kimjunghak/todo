@@ -29,4 +29,11 @@ public class HigherxUserFront {
 
         private String crn;
     }
+
+    @Data
+    public static class Login {
+        private String account;
+
+        private String password;
+    }
 }

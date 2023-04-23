@@ -32,6 +32,6 @@ public class TodoFront {
 
         private String description;
 
-        private TodoState state;
+        private String state;
     }
 }

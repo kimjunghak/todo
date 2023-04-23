@@ -6,7 +6,9 @@ import com.higherx.api.model.entity.user.HigherxUser;
 
 public interface HigherxUserService {
 
-    Long signup(HigherxUserFront.Signup signup);
+    void signup(HigherxUserFront.Signup signup);
+
+    Long login(HigherxUserFront.Login login);
 
     HigherxUserFront.UserInfo getInfo(Long higherxUserId);
 

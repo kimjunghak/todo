@@ -26,7 +26,7 @@ public class Todo extends BaseEntity {
 
     private String description;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "userId")
     private HigherxUser higherxUser;
 

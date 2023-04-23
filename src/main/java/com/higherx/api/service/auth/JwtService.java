@@ -32,10 +32,13 @@ public class JwtService {
     }
 
     public String generateToken(Long userId) {
+        Date now = new Date();
+        Date expired = Date.from(now.toInstant().plusSeconds(jwtProperties.getExpiredTime()));
         return Jwts.builder()
                 .setSubject(userId.toString())
                 .signWith(getSignedKey())
-                .setIssuedAt(new Date())
+                .setExpiration(expired)
+                .setIssuedAt(now)
                 .compact();
     }
 
@@ -58,7 +61,7 @@ public class JwtService {
     }
 
     public void removeToken(String token) {
-        //토큰 정보 삭제
+        //todo 토큰 정보 삭제
     }
 
     public String refreshToken(String token) {

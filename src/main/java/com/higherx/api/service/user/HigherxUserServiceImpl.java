@@ -1,5 +1,7 @@
 package com.higherx.api.service.user;
 
+import com.higherx.api.config.UnAuthorizedException;
+import com.higherx.api.encoder.PasswordEncoder;
 import com.higherx.api.model.dto.user.HigherxUserFront;
 import com.higherx.api.model.dto.user.HigherxUserMapper;
 import com.higherx.api.model.dto.user.Verify;
@@ -7,7 +9,6 @@ import com.higherx.api.model.entity.user.HigherxUser;
 import com.higherx.api.repo.user.HigherxUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -24,10 +25,23 @@ public class HigherxUserServiceImpl implements HigherxUserService{
     private final HigherxUserMapper higherxUserMapper;
 
     @Override
-    public Long signup(HigherxUserFront.Signup signup) {
+    public void signup(HigherxUserFront.Signup signup) {
         HigherxUser higherxUser = higherxUserMapper.toEntity(signup);
         setEncodePassword(higherxUser);
         higherxUserRepository.save(higherxUser);
+    }
+
+    @Override
+    public Long login(HigherxUserFront.Login login) {
+        Optional<HigherxUser> higherxUserOptional = higherxUserRepository.findByAccount(login.getAccount());
+        if (higherxUserOptional.isEmpty()) {
+            throw new UnAuthorizedException("아이디 혹은 암호를 확인해주세요.");
+        }
+        HigherxUser higherxUser = higherxUserOptional.get();
+        //암호 확인
+        if (!passwordEncoder.matches(login.getPassword(), higherxUser.getPassword())) {
+            throw new UnAuthorizedException("아이디 혹은 암호를 확인해주세요.");
+        }
         return higherxUser.getId();
     }
 
@@ -61,6 +75,11 @@ public class HigherxUserServiceImpl implements HigherxUserService{
 
     @Override
     public Verify verifyCrn(String crn) {
+        String replaceCrn = crn.replaceAll("-", "");
+        char[] crnCharArray = replaceCrn.toCharArray();
+        if (!checkCrn(crnCharArray)) {
+            return Verify.unavailable();
+        }
         Optional<HigherxUser> higherxUser = higherxUserRepository.findByCrn(crn);
         return getVerify(higherxUser);
     }
@@ -79,8 +98,28 @@ public class HigherxUserServiceImpl implements HigherxUserService{
 
     private static Verify getVerify(Optional<HigherxUser> higherxUser) {
         if (higherxUser.isEmpty()) {
-            return Verify.nonExist();
+            return Verify.unavailable();
         }
-        return Verify.exist();
+        return Verify.available();
+    }
+
+    private static boolean checkCrn(char[] crnCharArray) {
+        final String authKey = "137137135";
+        // 1
+        char[] authKeyArr = authKey.toCharArray();
+        if (crnCharArray.length != 10) {
+            throw new RuntimeException("사업자 번호는 - 제외 10자리어야 합니다.");
+        }
+        int sum = 0;
+        // 2
+        for (int i = 0; i < crnCharArray.length - 1; i++) {
+            sum += crnCharArray[i] * authKeyArr[i];
+        }
+        // 3, 4
+        sum += (int) crnCharArray[crnCharArray.length - 2] * authKeyArr[authKeyArr.length - 1] / 10;
+        // 5, 6
+        int last = 10 - sum % 10;
+        // 7
+        return last == crnCharArray[crnCharArray.length - 1];
     }
 }

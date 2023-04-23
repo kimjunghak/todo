@@ -58,6 +58,6 @@ public class TodoController {
         if (state == null) {
             return TodoState.ALL;
         }
-        return TodoState.valueOf(state);
+        return TodoState.valueOf(state.toUpperCase());
     }
 }

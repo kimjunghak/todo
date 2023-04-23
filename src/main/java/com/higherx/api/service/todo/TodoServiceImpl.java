@@ -29,15 +29,17 @@ public class TodoServiceImpl implements TodoService{
 
     @Override
     public Map<String, Object> getTodoList(TodoState state, Pageable pageable) {
-        Page<Todo> todoPage = todoRepository.findAllByState(state, pageable);
+        ArrayList<TodoState> todoStates = new ArrayList<>();
+        if (state.equals(TodoState.ALL)) {
+            todoStates.addAll(List.of(TodoState.COMPLETE, TodoState.INCOMPLETE));
+        } else {
+            todoStates.add(state);
+        }
+        Page<Todo> todoPage = todoRepository.findAllByStateIn(todoStates, pageable);
 
         List<Todo> todoList = todoPage.getContent();
-        ArrayList<TodoFront.ListInfo> listListInfo = new ArrayList<>();
         // Front 전달용 데이터로 전환
-        for (Todo todo : todoList) {
-            TodoFront.ListInfo todoInfo = todoMapper.listInfoFromEntity(todo);
-            listListInfo.add(todoInfo);
-        }
+        List<TodoFront.ListInfo> listListInfo = todoMapper.listFromEntity(todoList);
         HashMap<String, Object> data = new HashMap<>();
         data.put("items", listListInfo);
         return data;
@@ -67,7 +69,7 @@ public class TodoServiceImpl implements TodoService{
 
         Todo todo = getTodo(todoId);
         checkRegister(userId, todo);
-        todo.modify(todoInfo.getName(), todoInfo.getDescription(), todoInfo.getState());
+        todo.modify(todoInfo.getName(), todoInfo.getDescription(), TodoState.valueOf(todoInfo.getState().toUpperCase()));
         todoRepository.save(todo);
     }
 

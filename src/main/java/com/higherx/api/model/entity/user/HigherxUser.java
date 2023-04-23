@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
@@ -28,8 +30,8 @@ public class HigherxUser extends BaseEntity {
 
     private String crn;
 
-    @OneToOne(mappedBy = "higherxUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Todo todo;
+    @OneToMany(mappedBy = "higherxUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Todo> todo;
 
     public void encodePassword(String encodedPassword) {
         this.password = encodedPassword;
