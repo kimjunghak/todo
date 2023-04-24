@@ -9,11 +9,14 @@ import com.higherx.api.model.entity.user.HigherxUser;
 import com.higherx.api.repo.user.HigherxUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -55,7 +58,9 @@ public class HigherxUserServiceImpl implements HigherxUserService{
     @Override
     public void signout(Long higherxUserId) {
         HigherxUser higherxUser = getHigherxUser(higherxUserId);
-        higherxUser.signout(); //마스킹 처리
+        String phone = higherxUser.getPhone();
+        String crn = higherxUser.getCrn();
+        higherxUser.signout(phoneMasking(phone), crnMasking(crn)); //마스킹 처리
         higherxUserRepository.save(higherxUser);
     }
 
@@ -122,5 +127,26 @@ public class HigherxUserServiceImpl implements HigherxUserService{
         int last = 10 - sum % 10;
         // 7
         return last == crnCharArray[crnCharArray.length - 1];
+    }
+
+    private String phoneMasking(String phone) {
+        String regex = "(\\d{3})-?(\\d{4})-?(\\d{4})";
+        return masking(regex, phone, 2);
+    }
+
+    private String crnMasking(String crn) {
+        String regex = "(\\d{3})-?(\\d{2})-?(\\d{5})";
+        return masking(regex, crn, 3);
+    }
+
+    private static String masking(String regex, String str, int target) {
+        Pattern compile = Pattern.compile(regex);
+        Matcher matcher = compile.matcher(str);
+        if (matcher.find()) {
+            String last = matcher.group(target);
+            String masking = last.replaceAll("\\d", "*");
+            return str.replace(last, masking);
+        }
+        return Strings.EMPTY;
     }
 }

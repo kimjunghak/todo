@@ -38,9 +38,9 @@ public class HigherxUser extends BaseEntity {
         this.password = encodedPassword;
     }
 
-    public void signout() {
+    public void signout(String phone, String crn) {
         this.password = Strings.EMPTY;
-        this.phone = Strings.EMPTY;
-        this.crn = Strings.EMPTY;
+        this.phone = phone;
+        this.crn = crn;
     }
 }

@@ -13,4 +13,4 @@ spring:
 
 jwt:
   secret-key: 7TXK9yK8FDvY848kODEpHS61x5fhh18OtTiplZbhBlQ=
-  expired-time: 7200000 # 2시간
+  expired-time: 7200 # 2시간
